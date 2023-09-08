@@ -1,6 +1,0 @@
-website.com | user@email.com | 11111
-tacos.com | user@email.com | 22222
-espn.com | user@email.com | 13!!!$kljadfAERQe
-myspace.com | user@email.com | 333333
-ebay | user@email.com | 11111111
-somesite.com | user@email.com | 45245245
