@@ -1,7 +1,7 @@
 import turtle
 import pandas
 
-#Read in the CSV into a panda DataSheet and extract the state names to a list
+#Read in the CSV into a panda DataFrame and extract the state names to a list
 data = pandas.read_csv("50_states.csv")
 states = data.state.to_list()
 
