@@ -6,11 +6,14 @@ BACKGROUND_COLOR = "#B1DDC6"
 current_card = {}
 
 def flip_card():
+    # Set the background to the green image, set the title to "English" with white text, and print the english word.
     canvas.itemconfig(card_background, image=card_back_image)
     canvas.itemconfig(card_title, text="English", fill="white")
     canvas.itemconfig(card_word, text=current_card["English"], fill="white")
 
 def next_card():
+    #Cancel the timer if there is one (if you keep hitting "known"), get a random word from the dict, set the title to "French"
+    # and text color to black, the background to the front image, print the French word, and set a 3 second (3000msec) timer.
     global current_card, flip_timer
     window.after_cancel(flip_timer)
     current_card= random.choice(word_dict)
@@ -21,19 +24,14 @@ def next_card():
     flip_timer = window.after(3000, func=flip_card)
 
 def known_word():
+    #If a word is marked as "Known", remove it from the dictionary, then convert the dictionary to a Pandas DataFrame and
+    #save as a CSV file and call the next_card() funtion to display a new card.
     word_dict.remove(current_card)
-    print(len(word_dict))
+    #print(len(word_dict))
     data_to_save = pandas.DataFrame(word_dict)
     data_to_save.to_csv("data/words_to_learn.csv", index=False)
     next_card()
 
-try:
-    data = pandas.read_csv("data/words_to_learn.csv")
-except FileNotFoundError:
-    data = pandas.read_csv("data/french_words.csv")
-
-word_dict = data.to_dict(orient="records")
-#print (word_dict)
 
 #---------------UI----------------#
 window = Tk()
@@ -62,5 +60,19 @@ dont_know_button.grid(row=1,column=0)
 know_button = Button(image=right_image, highlightthickness=0,command=known_word)
 know_button.grid(row=1,column=1)
 
+#---------Main Code----------------------#
+
+#Try to open the CSV file of words still to learn.  If it is not found, then open the CSV with the full list of words. 
+#Convert to a Pandas DataFrame
+try:
+    data = pandas.read_csv("data/words_to_learn.csv")
+except FileNotFoundError:
+    data = pandas.read_csv("data/french_words.csv")
+
+#Convert the DataFrame to a Python dictionary, oriented by records so that each entry is <french_word>:<english_word>
+word_dict = data.to_dict(orient="records")
+#print (word_dict)
+
+#Start by picking a random card
 next_card()
 window.mainloop()
