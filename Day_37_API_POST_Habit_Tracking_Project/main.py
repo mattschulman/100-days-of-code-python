@@ -1,8 +1,9 @@
 import requests
 #from datetime import date,timedelta
 
-USERNAME = <<username>>
-TOKEN = <<token>>
+#Replace username and token with real values
+USERNAME = "user"
+TOKEN = "token"
 GRAPH = "graph1"
 
 # Create a user on pixe.la
