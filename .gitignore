@@ -9,4 +9,5 @@ movies.txt
 .vscode/
 Day_37*
 Day_38*
-instance/
+movies.db
+*_api_*.txt
