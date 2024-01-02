@@ -45,18 +45,20 @@
         {{ ckeditor.config(name='comment_text') }}
         <!-- Create the wtf quick form from CommentForm -->
         {{ render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-        <div class="col-lg-8 col-md-10 mx-auto comment">
-          <!-- TODO: Show all the comments on a post -->
+        <div class="comment">
           <ul class="commentList">
+            <!-- Show all the comments on a post -->
+            {% for comment in post.comments %}
             <li>
               <div class="commenterImage">
-                <img src="../static/assets/img/default-profile.jpg" />
+                <img src="{{ comment.comment_author.email | gravatar }} />
               </div>
               <div class="commentText">
-                <p>Some comment</p>
-                <span class="date sub-text">comment author name</span>
+                <p>{{ comment.text|safe }}</p>
+                <span class="date sub-text">{{ comment.comment_author.name }}</span>
               </div>
             </li>
+            {% endfor %}
           </ul>
         </div>
       </div>

@@ -47,6 +47,10 @@ class User(UserMixin, db.Model):
     #The "author" refers to the author property in the BlogPost class.
     posts = relationship("BlogPost", back_populates="author")
 
+    #*******Add parent relationship*******#
+    #"comment_author" refers to the comment_author property in the Comment class.
+    comments = relationship("Comment", back_populates="comment_author")
+
 # BlogPost Table for blog posts
 class BlogPost(db.Model):
     __tablename__ = "blog_posts"
@@ -63,10 +67,38 @@ class BlogPost(db.Model):
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
 
+    #***************Parent Relationship*************#
+    comments = relationship("Comment", back_populates="parent_post")
 
+# Comment Table for Blog Post Comments
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
+    
+    #*******Add child relationship*******#
+    #"users.id" The users refers to the tablename of the Users class.
+    #"comments" refers to the comments property in the User class.
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    comment_author = relationship("User", back_populates="comments")
+
+    #***************Child Relationship*************#
+    post_id = db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
+    parent_post = relationship("BlogPost", back_populates="comments")
 
 with app.app_context():
     db.create_all()
+
+# For adding profile images to the comment section
+gravatar = Gravatar(app,
+                    size=100,
+                    rating='g',
+                    default='retro',
+                    force_default=False,
+                    force_lower=False,
+                    use_ssl=False,
+                    base_url=None)
+
 
 #Create admin-only decorator
 def admin_only(f):
@@ -152,12 +184,26 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts, current_user=current_user)
 
 
-# Allow logged-in users to comment on posts
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
 def show_post(post_id):
     requested_post = db.get_or_404(BlogPost, post_id)
     # Add the commentForm to the route
     comment_form = CommentForm()
+    # Only allow logged-in users  to comment on posts
+    if comment_form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash("You need to login or register to comment.")
+            return redirect(url_for("login"))
+        
+        new_comment = Comment(
+            text=comment_form.comment_text.data,
+            comment_author=current_user,
+            parent_post=requested_post,
+        )
+
+        db.session.add(new_comment)
+        db.session.commit()
+
     return render_template("post.html", post=requested_post, current_user=current_user, form=comment_form)
 
 
